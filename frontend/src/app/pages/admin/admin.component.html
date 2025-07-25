@@ -1,0 +1,50 @@
+<!-- admin.component.html -->
+<div class="admin-dashboard">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="left-section">
+      <i class="bi bi-person-circle"></i>
+      <span>Bienvenue dans votre espace Admin</span>
+    </div>
+    <div class="right-section">
+      <i class="bi bi-bell notification-icon"></i>
+    </div>
+  </header>
+
+  <!-- Sidebar toggle button -->
+  <button class="menu-toggle" (click)="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" [class.open]="sidebarOpen">
+      <ul>
+        <li><i class="bi bi-file-earmark-text"></i> Gérer les appels d'offre</li>
+        <li><i class="bi bi-folder-plus"></i> Création de projet</li>
+        <li><i class="bi bi-graph-up"></i> Suivi global des projets</li>
+      </ul>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content">
+      <div class="stats-card">
+        <div class="card">
+          <i class="bi bi-journal-text"></i>
+          <h4>Appels d’Offres en cours</h4>
+          <p>4</p>
+        </div>
+        <div class="card">
+          <i class="bi bi-check2-square"></i>
+          <h4>Projets créés</h4>
+          <p>8</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Logout button -->
+  <div class="logout-btn" (click)="logout()">
+    <i class="bi bi-box-arrow-right"></i> Se déconnecter
+  </div>
+</div>

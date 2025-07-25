@@ -1,0 +1,50 @@
+<div class="chef-dashboard">
+  <!-- Header -->
+  <header class="chef-header">
+    <div class="left-section">
+      <i class="bi bi-person-circle"></i>
+      <span>Bienvenue dans votre espace Chef de Projet</span>
+    </div>
+    <div class="right-section">
+      <i class="bi bi-bell chef-notification-icon"></i>
+    </div>
+  </header>
+
+  <!-- Sidebar toggle button -->
+  <button class="menu-toggle" (click)="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <div class="chef-layout">
+    <!-- Sidebar -->
+    <nav class="chef-sidebar" [class.open]="sidebarOpen">
+      <ul>
+        <li><i class="bi bi-hand-index-thumb"></i> Sélectionner un appel d'offre</li>
+        <li><i class="bi bi-people-fill"></i> Gestion des consultants</li>
+        <li><i class="bi bi-kanban-fill"></i> Gestion des tâches</li>
+        <li><i class="bi bi-bar-chart-line-fill"></i> Suivi global des projets</li>
+      </ul>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-content">
+      <div class="stats-card">
+        <div class="card">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <h4>Tâches en Retard</h4>
+          <p>3</p>
+        </div>
+        <div class="card">
+          <i class="bi bi-play-fill"></i>
+          <h4>Projets Actifs</h4>
+          <p>5</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Logout -->
+  <div class="logout-btn" (click)="logout()">
+    <i class="bi bi-box-arrow-right"></i> Se déconnecter
+  </div>
+</div>

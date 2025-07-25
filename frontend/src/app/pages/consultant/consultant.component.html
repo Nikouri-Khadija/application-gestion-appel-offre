@@ -1,0 +1,41 @@
+<div class="consultant-dashboard">
+  <!-- Header -->
+  <header class="consultant-header">
+    <div class="left-section">
+      <i class="bi bi-person-circle"></i>
+      <span>Bienvenue dans votre espace Consultant</span>
+    </div>
+    <div class="right-section">
+      <i class="bi bi-bell consultant-notification-icon"></i>
+    </div>
+  </header>
+
+  <!-- Sidebar toggle button -->
+  <button class="menu-toggle" (click)="toggleSidebar()">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <div class="consultant-layout">
+    <!-- Sidebar -->
+    <nav class="consultant-sidebar" [class.open]="sidebarOpen">
+      <ul>
+        <li><i class="bi bi-list-task"></i> Mes tâches assignées</li>
+        <li><i class="bi bi-briefcase-fill"></i> Mes projets affectés</li>
+      </ul>
+    </nav>
+
+    <!-- Main content (vide ici) -->
+    <main class="dashboard-content">
+      <div class="placeholder-message">
+        <i class="bi bi-lightbulb-fill"></i>
+        <p>Sélectionnez une option dans le menu pour voir vos données.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Logout -->
+  <div class="logout-btn" (click)="logout()">
+    <i class="bi bi-box-arrow-right"></i> Se déconnecter
+  </div>
+</div>
+
