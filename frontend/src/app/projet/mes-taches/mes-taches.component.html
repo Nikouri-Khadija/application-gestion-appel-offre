@@ -1,0 +1,122 @@
+<div class="mes-taches">
+  <h3><i class="fas fa-tasks"></i> Mes Tâches Assignées</h3>
+
+  <!-- Filtres améliorés -->
+  <div class="filters">
+    <div class="filter-wrapper">
+      <i class="fas fa-project-diagram"></i>
+      <select [(ngModel)]="selectedProjet" (change)="filtrerTaches()">
+        <option value="">Tous les projets</option>
+        <option *ngFor="let projet of projets" [value]="projet">{{ projet }}</option>
+      </select>
+    </div>
+
+    <div class="filter-wrapper">
+      <i class="fas fa-exclamation-circle"></i>
+      <select [(ngModel)]="selectedPriorite" (change)="filtrerTaches()">
+        <option value="">Toutes priorités</option>
+        <option *ngFor="let p of priorites" [value]="p">{{ p }}</option>
+      </select>
+    </div>
+
+    <div class="filter-wrapper">
+      <i class="fas fa-tag"></i>
+      <select [(ngModel)]="selectedStatut" (change)="filtrerTaches()">
+        <option value="">Tous statuts</option>
+        <option *ngFor="let s of statutsFiltre" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tableau des tâches -->
+  <table>
+    <thead>
+    <tr>
+      <th>Nom Tâche</th>
+      <th>Priorité</th>
+      <th>Statut</th>
+      <th>Projet</th>
+      <th>Date Affectation</th>
+      <th>Date Limite</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let tache of tachesFiltres">
+      <!-- Ligne principale -->
+      <tr>
+        <td>{{ tache.nom }}</td>
+        <td>
+          <span class="priority-badge" [class]="getPriorityClass(tache.priorite)">
+            {{ tache.priorite }}
+          </span>
+        </td>
+        <td>
+          <span class="statut-badge" [class]="getStatusClass(tache.statut)">
+            {{ tache.statut }}
+          </span>
+        </td>
+        <td>{{ tache.projet }}</td>
+        <td>{{ tache.dateAffectation }}</td>
+        <td>{{ tache.dateLimite }}</td>
+        <td class="actions">
+          <button class="btn-icon btn-grey" (click)="afficherDetails(tache)" title="Détails">
+            <i class="fas fa-info-circle"></i>
+          </button>
+          <button class="btn-icon btn-blue" (click)="toggleModifier(tache)" title="Modifier">
+            <i class="fas fa-edit"></i>
+          </button>
+        </td>
+      </tr>
+
+      <!-- Formulaire modification amélioré -->
+      <tr *ngIf="tacheEnCours && tacheEnCours.id === tache.id" class="form-row">
+        <td colspan="7">
+          <div class="form-modifier">
+            <h4><i class="fas fa-edit"></i> Modifier la tâche</h4>
+            <div class="form-fields">
+              <div class="input-group">
+                <label><i class="fas fa-tag"></i> Nouveau statut :</label>
+                <select [(ngModel)]="nouveauStatut" class="styled-select">
+                  <option *ngFor="let s of statutsModification" [value]="s">{{ s }}</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label><i class="fas fa-comment"></i> Commentaire :</label>
+                <textarea [(ngModel)]="commentaire" placeholder="Commentaire (obligatoire si statut 'Bloqué')"
+                          class="styled-textarea"></textarea>
+              </div>
+            </div>
+
+            <div class="form-buttons">
+              <button class="btn-green" (click)="validerModification()">
+                <i class="fas fa-check"></i> Valider
+              </button>
+              <button class="btn-red" (click)="annulerModification()">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      <!-- Détails description/commentaire -->
+      <tr *ngIf="tache.showDetails" class="description-row">
+        <td colspan="7">
+          <div class="details-content">
+            <p><strong><i class="fas fa-align-left"></i> Description:</strong> {{ tache.description || 'Aucune' }}</p>
+            <p><strong><i class="fas fa-comments"></i> Commentaire:</strong> {{ tache.commentaire || 'Aucun' }}</p>
+          </div>
+        </td>
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+
+  <div class="retour-menu">
+    <button class="btn-retour" (click)="retourMenu()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+<div class="chef-selection">
+
+  <!-- Titre principal -->
+  <h3><i class="fas fa-list-ul"></i> Liste des Appels d'Offres à sélectionner</h3>
+
+  <!-- Message succès -->
+  <div class="message-success animate-message" *ngIf="message">
+    <i class="fas fa-check-circle"></i> {{ message }}
+  </div>
+
+  <!-- Bouton retour au menu -->
+  <div class="retour-container">
+    <button class="btn-grey" (click)="retourMenu()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+  <!-- Tableau des appels sans filtre -->
+  <table *ngIf="appels.length > 0">
+    <thead>
+    <tr>
+      <th>Organisme</th>
+      <th>Titre</th>
+      <th>Date de création</th>
+      <th>Date limite</th>
+      <th>Fiche Avis</th>
+      <th>Fiche RC</th>
+      <th>Fiche CPS</th>
+      <th>Fiche Qualification</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <ng-container *ngFor="let appel of appels; let i = index">
+      <!-- Ligne principale -->
+      <tr class="hover-row">
+        <td>{{ appel.organisme }}</td>
+        <td>{{ appel.titre }}</td>
+        <td>{{ appel.dateCreation | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ appel.dateLimite | date: 'dd/MM/yyyy' }}</td>
+
+        <td>
+          <a *ngIf="appel.fichier1" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier1)" download target="_blank">  Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier2" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier2)" download target="_blank"> Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier3" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier3)" download target="_blank"> Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier4" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier4)" download target="_blank">Télécharger</a>
+        </td>
+
+        <!-- ✅ Action = seulement Sélectionner -->
+        <td class="actions-cell">
+          <button class="btn-green" (click)="selectionnerAppel(appel.id, appel.titre)">
+            <i class="fas fa-check"></i> Sélectionner
+          </button>
+        </td>
+      </tr>
+
+      <!-- ✅ Nouvelle ligne pour "Afficher détails" -->
+      <tr>
+        <td colspan="9" class="details-toggle-cell">
+          <button class="btn-secondary" (click)="toggleDetails(i)">
+            <i class="fas" [ngClass]="appel.showDetails ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ appel.showDetails ? 'Masquer détails' : 'Afficher détails' }}
+          </button>
+        </td>
+      </tr>
+
+      <!-- ✅ Ligne détails -->
+      <tr *ngIf="appel.showDetails" class="details-row">
+        <td colspan="9">
+        <span class="detail-item">
+          💰 <strong>Estimation :</strong> {{ appel.estimation | number:'1.0-2' }} MAD
+        </span>
+          &nbsp;&nbsp;
+          <span class="detail-item">
+          🛡️ <strong>Caution provisoire :</strong> {{ appel.cautionProvisoire | number:'1.0-2' }} MAD
+        </span>
+        </td>
+      </tr>
+    </ng-container>
+    </tbody>
+
+  </table>
+
+  <p *ngIf="appels.length === 0">Aucun appel d'offre disponible à sélectionner pour le moment.</p>
+
+</div>

@@ -1,0 +1,180 @@
+<div class="admin-gestion">
+  <h3><i class="fas fa-cogs"></i> Gestion des Appels d’Offres</h3>
+
+  <div class="actions">
+    <button class="btn-blue" (click)="showForm()">
+      <i class="fas fa-plus-circle"></i> Créer un nouvel appel
+    </button>
+    <button class="btn-grey" (click)="retour()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+  <div class="message-success animate-message" *ngIf="message">
+    <i class="fas fa-check-circle"></i> {{ message }}
+  </div>
+
+  <form *ngIf="formVisible" [formGroup]="appelForm" (ngSubmit)="submit()" class="form-slide enhanced-form">
+
+    <!-- Ligne 1 -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Organisme</label>
+        <input formControlName="organisme" placeholder="Ex : Ministère de la Santé" required />
+      </div>
+      <div class="input-wrapper">
+        <label>Titre</label>
+        <input formControlName="titre" placeholder="Ex : Fourniture de matériel médical" required />
+      </div>
+    </div>
+
+    <!-- Ligne 2 -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Date de création</label>
+        <input type="date" formControlName="dateCreation" class="styled-date" required />
+      </div>
+      <div class="input-wrapper">
+        <label>Date limite</label>
+        <input type="date" formControlName="dateLimite" class="styled-date" required />
+      </div>
+    </div>
+
+    <!-- Ligne 3 -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Estimation</label>
+        <input formControlName="estimation" placeholder="Ex : 250 000 MAD" required />
+      </div>
+      <div class="input-wrapper">
+        <label>Caution provisoire</label>
+        <input formControlName="cautionProvisoire" placeholder="Ex : 15 000 MAD" required />
+      </div>
+    </div>
+
+    <!-- Upload fichiers -->
+    <div class="form-row">
+      <div class="input-wrapper file-input-wrapper">
+        <label for="fichier1">Fiche Avis</label>
+        <input id="fichier1" type="file" (change)="onFileChange($event, 'fichier1')" />
+        <span *ngIf="formFiles['fichier1']" class="filename">{{ formFiles['fichier1'].name }}</span>
+      </div>
+
+      <div class="input-wrapper file-input-wrapper">
+        <label for="fichier2">Fiche RC</label>
+        <input id="fichier2" type="file" (change)="onFileChange($event, 'fichier2')" />
+        <span *ngIf="formFiles['fichier2']" class="filename">{{ formFiles['fichier2'].name }}</span>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper file-input-wrapper">
+        <label for="fichier3">Fiche CPS</label>
+        <input id="fichier3" type="file" (change)="onFileChange($event, 'fichier3')" />
+        <span *ngIf="formFiles['fichier3']" class="filename">{{ formFiles['fichier3'].name }}</span>
+      </div>
+
+      <div class="input-wrapper file-input-wrapper">
+        <label for="fichier4">Fiche de qualification</label>
+        <input id="fichier4" type="file" (change)="onFileChange($event, 'fichier4')" />
+        <span *ngIf="formFiles['fichier4']" class="filename">{{ formFiles['fichier4'].name }}</span>
+      </div>
+    </div>
+
+    <button class="btn-blue" type="submit" [disabled]="appelForm.invalid">
+      <i class="fas fa-paper-plane"></i> Envoyer aux chefs
+    </button>
+  </form>
+
+
+
+
+
+  <!-- ✅ Barres de recherche -->
+  <div class="search-bar">
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="searchTitre" placeholder="Recherche par titre" class="input-search" />
+    </div>
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="searchStatut" placeholder="Recherche par statut" class="input-search" />
+    </div>
+  </div>
+
+  <!-- ✅ Liste des appels -->
+
+  <h4><i class="fas fa-list"></i> Liste des Appels</h4>
+  <p *ngIf="appels.length === 0">Aucun appel envoyé.</p>
+  <table *ngIf="appels.length">
+    <thead>
+    <tr>
+      <th>Organisme</th>
+      <th>Titre</th>
+      <th>Date de création</th>
+      <th>Date limite</th>
+
+      <th>Fiche Avis</th>
+      <th>Fiche RC</th>
+      <th>Fiche CPS</th>
+      <th>Fiche Qualification</th>
+      <th>Statut</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let appel of appels | filterAppel:searchTitre:searchStatut">
+      <!-- LIGNE PRINCIPALE -->
+      <tr class="hover-row">
+        <td>{{ appel.organisme }}</td>
+        <td>{{ appel.titre }}</td>
+        <td>{{ appel.dateCreation | date:'dd/MM/yyyy' }}</td>
+        <td>{{ appel.dateLimite | date:'dd/MM/yyyy' }}</td>
+
+        <td>
+          <a *ngIf="appel.fichier1" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier1)" target="_blank" download>Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier2" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier2)" target="_blank" download>Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier3" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier3)" target="_blank" download>Télécharger</a>
+        </td>
+        <td>
+          <a *ngIf="appel.fichier4" [href]="'http://localhost:8080/api/files/' + encodeURIComponent(appel.fichier4)" target="_blank" download>Télécharger</a>
+        </td>
+
+        <td [ngClass]="appel.statut.toLowerCase()" style="font-weight: bold">{{ appel.statut }}</td>
+
+        <td>
+          <div class="action-buttons">
+            <button class="btn-green" [ngClass]="{'btn-fade': appel.statut !== 'ENVOYE'}" (click)="valider(appel.id)">Valider</button>
+            <button class="btn-red" [ngClass]="{'btn-fade': appel.statut !== 'ENVOYE'}" (click)="refuser(appel.id)">Rejeter</button>
+          </div>
+        </td>
+      </tr>
+
+      <!-- ✅ Nouvelle ligne pour le bouton "Afficher détails" -->
+      <tr>
+        <td colspan="10" class="details-toggle-cell">
+          <button class="btn-secondary" (click)="toggleDetails(appel)">
+            <i class="fas" [ngClass]="appel.showDetails ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ appel.showDetails ? ' Masquer détails' : ' Afficher détails' }}
+          </button>
+        </td>
+      </tr>
+
+      <!-- ✅ Ligne des détails -->
+      <tr *ngIf="appel.showDetails" class="details-row">
+        <td colspan="10">
+          💰 <strong>Estimation :</strong> {{ appel.estimation | number:'1.0-2' }} MAD &nbsp;&nbsp;
+          🛡️ <strong>Caution provisoire :</strong> {{ appel.cautionProvisoire | number:'1.0-2' }} MAD
+        </td>
+      </tr>
+
+    </ng-container>
+    </tbody>
+
+  </table>
+
+</div>

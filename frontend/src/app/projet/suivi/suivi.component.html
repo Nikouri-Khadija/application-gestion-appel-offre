@@ -1,0 +1,163 @@
+<div class="suivi-container">
+  <!-- En-tête -->
+  <div class="header">
+    <h1>Suivi du projet: {{ nomProjet }}</h1>
+    <label for="projets">Sélectionner un projet :</label>
+    <select id="projets" [(ngModel)]="selectedProjet" (change)="onProjetChange()">
+      <option value="">-- Choisir un projet --</option>
+      <option *ngFor="let nom of projetsAffectes" [value]="nom">
+        {{ nom }}
+      </option>
+    </select>
+
+
+    <button class="btn-pdf" (click)="genererPDF()" [disabled]="!suiviProjet">
+      <i class="fas fa-file-pdf"></i> Générer PDF
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement du suivi du projet...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="chargerSuiviProjet()">Réessayer</button>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="suiviProjet && !loading" class="suivi-content">
+
+    <!-- Cartes de statistiques -->
+    <div class="stats-grid">
+      <div class="stat-card progression">
+        <div class="stat-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Progression globale</h3>
+          <div class="progress-circle">
+            <div class="circle"
+                 [style.background]="'conic-gradient(#4CAF50 ' + (suiviProjet?.progressionGlobale ?? 0) + '%, #e0e0e0 0)'">
+              <span>{{ (suiviProjet?.progressionGlobale ?? 0).toFixed(1) }}%</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-tasks"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Tâches totales</h3>
+          <p class="stat-number">{{ suiviProjet?.nbTaches }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Consultants</h3>
+          <p class="stat-number">{{ suiviProjet?.nbConsultants }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-content">
+          <h3>Jours restants</h3>
+          <p class="stat-number" [class.warning]="(suiviProjet?.joursRestants ?? 0) <= 7">
+            {{ suiviProjet?.joursRestants ?? 0 }}
+          </p>
+
+          <span>{{ (suiviProjet?.progressionGlobale ?? 0).toFixed(1) }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques par statut -->
+    <div class="status-stats">
+      <div class="status-item a-faire">
+        <span class="status-count">{{ suiviProjet?.nbAFaire }}</span>
+        <span class="status-label">À faire</span>
+      </div>
+      <div class="status-item en-cours">
+        <span class="status-count">{{ suiviProjet?.nbEnCours }}</span>
+        <span class="status-label">En cours</span>
+      </div>
+      <div class="status-item termine">
+        <span class="status-count">{{ suiviProjet?.nbTermine }}</span>
+        <span class="status-label">Terminé</span>
+      </div>
+      <div class="status-item bloque">
+        <span class="status-count">{{ suiviProjet?.nbBloque }}</span>
+        <span class="status-label">Bloqué</span>
+      </div>
+      <div class="status-item retarde">
+        <span class="status-count">{{ suiviProjet?.nbRetarde }}</span>
+        <span class="status-label">Retardé</span>
+      </div>
+    </div>
+
+    <!-- Tableau des tâches -->
+    <div class="taches-section">
+      <h2>Détail des tâches</h2>
+      <div class="table-container">
+        <table class="taches-table">
+          <thead>
+          <tr>
+            <th>Tâche</th>
+            <th>Statut</th>
+            <th>Priorité</th>
+            <th>Consultant</th>
+            <th>Date d'affectation</th>
+            <th>Date limite</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let tache of suiviProjet?.taches" class="tache-row">
+            <td class="tache-titre">
+              <strong>{{ tache.nomTache }}</strong>
+            </td>
+            <td>
+        <span class="statut-badge" [ngClass]="getStatutClass(tache.statut)">
+          {{ tache.statut }}
+        </span>
+            </td>
+            <td>
+        <span class="priorite"
+              [class.high]="tache.priorite === 'HAUTE' || tache.priorite === 'ELEVEE'"
+              [class.medium]="tache.priorite === 'MOYENNE'"
+              [class.low]="tache.priorite === 'BASSE'">
+          {{ tache.priorite }}
+        </span>
+            </td>
+            <td>
+              {{ tache.nomConsultant || 'Non assigné' }}
+            </td>
+            <td>
+              {{ tache.dateAffectation ? (tache.dateAffectation | date:'dd/MM/yyyy') : 'N/A' }}
+            </td>
+            <td>
+              {{ tache.dateLimite ? (tache.dateLimite | date:'dd/MM/yyyy') : 'N/A' }}
+              <span *ngIf="isRetarde(tache)" class="retard-indicator" title="Tâche en retard">⚠️</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,262 @@
+.creer-projet {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+
+  h3, h4 {
+    color: #b00508;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .actions {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+
+    .btn-blue, .btn-grey {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+
+    .btn-blue {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-grey {
+      background-color: grey;
+      color: white;
+    }
+  }
+
+  .message-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px 15px;
+    margin-bottom: 1rem;
+    border-left: 5px solid green;
+    border-radius: 5px;
+    animation: fade-in 0.4s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  form {
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    animation: slide-in 0.3s ease-out;
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+
+      .input-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        label {
+          color: #007bff;
+          font-weight: 600;
+          margin-bottom: 0.3rem;
+        }
+
+        input, select {
+          padding: 0.5rem;
+          font-size: 0.9rem;
+          border: 1px solid #ccc;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          background-color: white;
+          color: black;  // texte noir par défaut
+
+          &:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+            transform: scale(1.02);
+            color: black;  // texte noir quand focus
+            background-color: white; // garder fond blanc au focus
+          }
+
+          option {
+            color: black; // texte noir dans options
+            background-color: white; // fond blanc dans options
+          }
+
+          option[disabled] {
+            color: #6c757d; // placeholder gris clair
+          }
+        }
+
+        /* Placeholder gris clair pour input et select (uniquement pour le placeholder) */
+        input::placeholder,
+        select:invalid {
+          color: #6c757d; // gris clair uniquement pour placeholder
+        }
+
+        /* Spécifique select */
+        select {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          cursor: pointer;
+          padding-right: 2.5rem; // espace pour flèche personnalisée
+          background-image: none;
+          background-color: white; // fond blanc par défaut
+        }
+
+        /* Quand on ouvre le select, style du menu déroulant dépend du navigateur, mais on peut essayer de forcer */
+        select:focus option {
+          background-color: #f3f4f4; // gris très doux au focus pour options
+          color: black; // texte noir
+        }
+
+
+
+      }
+    }
+
+    button[type="submit"] {
+      background: #007bff;
+      color: white;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s ease;
+
+      &:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+      }
+
+      &:disabled {
+        background: #aaa;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .search-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+
+    .input-icon {
+      position: relative;
+
+      i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+      }
+
+      .input-search {
+        padding: 10px 10px 10px 36px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        width: 300px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+          transform: scale(1.02);
+        }
+      }
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .btn-green {
+      background-color: green;
+      color: white;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+
+    .btn-red {
+      background-color: #b00508;
+      color: white;
+      padding: 5px 12px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .btn-secondary {
+      margin-top: 5px;
+      padding: 6px 10px;
+      font-size: 13px;
+      background-color: #e0e0e0;
+      border: none;
+      border-radius: 4px;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      i {
+        margin-right: 4px;
+      }
+
+      &:hover {
+        background-color: #d5d5d5;
+      }
+    }
+
+    .details-row td {
+      background: #f1f1f1;
+      font-style: italic;
+    }
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

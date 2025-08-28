@@ -1,0 +1,122 @@
+<div class="creer-projet">
+  <h3><i class="fas fa-cogs"></i> Gestion des Projets</h3>
+
+  <div class="actions">
+    <button class="btn-blue" (click)="showForm()">
+      <i class="fas fa-plus-circle"></i> Créer un projet d'appel d'offre
+    </button>
+    <button class="btn-grey" (click)="retour()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+  <div *ngIf="message" class="message-success">
+    <i class="fas fa-check-circle"></i> {{ message }}
+  </div>
+
+  <form *ngIf="formVisible" [formGroup]="projetForm" (ngSubmit)="submit()" class="form-slide enhanced-form">
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Nom du projet</label>
+        <input formControlName="nom" placeholder="Ex : Système de gestion" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Code du projet</label>
+        <input formControlName="code" placeholder="Ex : P-001" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Chef de projet</label>
+        <select formControlName="chefId" required>
+          <option value="" disabled selected hidden>-- Sélectionner un chef --</option>
+          <option *ngFor="let chef of chefs" [value]="chef.id">{{ chef.nomComplet }}</option>
+        </select>
+      </div>
+
+      <div class="input-wrapper">
+        <label>Date de création</label>
+        <input type="date" formControlName="dateCreation" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Date limite</label>
+        <input type="date" formControlName="dateLimite" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper" style="flex: 1;">
+        <label>Description (optionnelle)</label>
+        <input formControlName="descriptionProjet" placeholder="Brève description du projet" />
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="projetForm.invalid" class="btn-blue">
+      <i class="fas fa-paper-plane"></i> Enregistrer le projet
+    </button>
+  </form>
+
+  <h4><i class="fas fa-list"></i> Liste des projets</h4>
+
+  <p *ngIf="projets.length === 0">Aucun projet créé.</p>
+
+  <div class="search-bar">
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="searchCode" placeholder="Recherche par code projet" class="input-search" />
+    </div>
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" [(ngModel)]="searchChef" placeholder="Recherche par chef de projet" class="input-search" />
+    </div>
+  </div>
+
+  <table *ngIf="projets.length">
+    <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Code</th>
+      <th>Chef de projet</th>
+      <th>Date de création</th>
+      <th>Date limite</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let projet of projets
+               | filter:searchCode:'codeProjet'
+               | filter:searchChef:'chefProjet.nomComplet'">
+
+      <tr>
+        <td>{{ projet.nomProjet }}</td>
+        <td>{{ projet.codeProjet }}</td>
+        <td>{{ projet.chefProjet?.nomComplet }}</td>
+        <td>{{ projet.dateCreation | date:'dd/MM/yyyy' }}</td>
+        <td>{{ projet.dateLimite | date:'dd/MM/yyyy' }}</td>
+        <td>
+          <button class="btn-green" (click)="modifier(projet)">Modifier</button>
+          <button class="btn-red" (click)="supprimerProjet(projet.id)">Supprimer</button>
+        </td>
+      </tr>
+
+      <tr *ngIf="projet.description" class="details-row">
+        <td colspan="6">
+          <button class="btn-secondary" (click)="afficherDescription(projet)">
+            <i class="fas" [ngClass]="projet.showDescription ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ projet.showDescription ? 'Masquer la description' : 'Afficher la description du projet' }}
+          </button>
+
+          <p *ngIf="projet.showDescription" style="margin-top: 10px;">
+            📝 <strong>Description :</strong> {{ projet.description }}
+          </p>
+        </td>
+      </tr>
+
+    </ng-container>
+    </tbody>
+
+  </table>
+</div>

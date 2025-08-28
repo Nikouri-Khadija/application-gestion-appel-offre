@@ -1,0 +1,168 @@
+<div class="creer-tache">
+  <h3><i class="fas fa-tasks"></i> Gestion des Tâches</h3>
+
+  <div class="actions">
+    <button class="btn-blue" (click)="showForm()">
+      <i class="fas fa-plus-circle"></i> Créer une tâche
+    </button>
+    <button class="btn-grey" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+  <!-- ✅ Message succès -->
+  <div *ngIf="message" class="message-success">
+    <i class="fas fa-check-circle"></i> {{ message }}
+  </div>
+
+  <!-- ✅ Formulaire -->
+  <form *ngIf="formVisible" [formGroup]="tacheForm" (ngSubmit)="submit()" class="form-slide enhanced-form">
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Nom de la tâche</label>
+        <input formControlName="nomTache" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Consultant</label>
+        <select formControlName="consultantId" (change)="onConsultantChange($event)" required>
+          <option value="" disabled selected hidden>-- Sélectionner un consultant --</option>
+          <option *ngFor="let c of consultants" [value]="c.id">{{ c.nomComplet }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Projet affecté</label>
+        <select formControlName="projetId" required>
+          <option value="" disabled selected hidden>-- Sélectionner un projet --</option>
+          <option *ngFor="let p of projets" [value]="p.id">{{ p.nomProjet }}</option>
+        </select>
+      </div>
+
+      <div class="input-wrapper">
+        <label>Priorité</label>
+        <select formControlName="priorite" required>
+          <option value="ELEVEE">Haute</option>
+          <option value="MOYENNE">Moyenne</option>
+          <option value="BASSE">Basse</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Date d'affectation</label>
+        <input type="date" formControlName="dateAffectation" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Date limite</label>
+        <input type="date" formControlName="dateLimite" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Description (optionnelle)</label>
+        <input formControlName="description" placeholder="Description de la tâche" />
+      </div>
+    </div>
+
+    <!-- ✅ Champ commentaire uniquement en modification -->
+    <div class="form-row" *ngIf="editingTacheId">
+      <div class="input-wrapper">
+        <label>Commentaire (optionnel)</label>
+        <input formControlName="commentaire" placeholder="Ajouter un commentaire" />
+      </div>
+    </div>
+
+    <!-- ✅ Boutons -->
+    <button type="submit" [disabled]="tacheForm.invalid" class="btn-blue">
+      <i class="fas fa-paper-plane"></i>
+      {{ editingTacheId ? 'Enregistrer la modification' : 'Ajouter' }}
+    </button>
+    <button type="button" class="btn-grey" (click)="cancelForm()">
+      <i class="fas fa-times"></i> Annuler
+    </button>
+  </form>
+
+  <!-- ✅ Tableau des tâches -->
+  <h4><i class="fas fa-list"></i> Liste des tâches</h4>
+
+  <!-- 🔍 Barre de recherche -->
+  <div class="search-bar">
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Recherche par tâche" [(ngModel)]="searchNomTache" class="input-search" />
+    </div>
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Recherche par projet" [(ngModel)]="searchProjet" class="input-search" />
+    </div>
+  </div>
+
+  <table *ngIf="taches.length > 0">
+    <thead>
+    <tr>
+      <th>Nom tâche</th>
+      <th>Consultant</th>
+      <th>Projet</th>
+      <th>Date création</th>
+      <th>Date affectation</th>
+      <th>Date limite</th>
+      <th class="status-col">Statut</th>
+      <th class="priority-col">Priorité</th>
+      <th class="action-col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let tache of taches | filter:searchNomTache:'nomTache' | filter:searchProjet:'nomProjet'">
+      <tr>
+        <td>{{ tache.nomTache }}</td>
+        <td>{{ tache.nomConsultant }}</td>
+        <td>{{ tache.nomProjet }}</td>
+        <td>{{ tache.dateCreation }}</td>
+        <td>{{ tache.dateAffectation }}</td>
+        <td>{{ tache.dateLimite }}</td>
+        <td class="status-cell">
+          <span class="status-badge" [class]="getStatusClass(tache.statut)">{{ tache.statut }}</span>
+        </td>
+        <td class="priority-cell">
+          <span class="priority-badge" [class]="getPriorityClass(tache.priorite)">{{ tache.priorite }}</span>
+        </td>
+        <td class="actions-cell">
+          <button class="btn-icon btn-green" (click)="modifier(tache)" title="Modifier">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon btn-red" (click)="supprimerTache(tache.id)" title="Supprimer">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </td>
+      </tr>
+
+      <!-- ✅ Ligne supplémentaire pour description et commentaire -->
+      <tr class="description-row">
+        <td colspan="9">
+          <button class="btn-description" (click)="toggleDetails(tache)">
+            <i class="fas" [ngClass]="tache.showDetails ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ tache.showDetails ? 'Masquer détails' : 'Afficher détails' }}
+          </button>
+          <button *ngIf="tache.statut === 'EN_ATTENTE_VALIDATION'"
+                  class="btn-mark-done"
+                  (click)="marquerCommeTerminee(tache)">
+            <i class="fas fa-check-circle"></i> Marquer comme terminée
+          </button>
+          <div *ngIf="tache.showDetails" class="description-content">
+            <p><strong>Description :</strong> {{ tache.description || 'Aucune' }}</p>
+            <p><strong>Commentaire :</strong> {{ tache.commentaire || 'Aucun' }}</p>
+          </div>
+        </td>
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+
+  <p *ngIf="taches.length === 0">Aucune tâche trouvée.</p>
+</div>

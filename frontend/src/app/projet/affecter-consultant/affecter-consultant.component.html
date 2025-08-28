@@ -1,0 +1,142 @@
+<div class="affecter-consultant">
+  <h3><i class="fas fa-users"></i> Gestion des Consultants</h3>
+
+  <div class="actions">
+    <button class="btn-blue" (click)="showForm()">
+      <i class="fas fa-user-plus"></i> Affecter un consultant
+    </button>
+    <button class="btn-grey" (click)="cancel()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+  <div *ngIf="message" class="message-success">
+    <i class="fas fa-check-circle"></i> {{ message }}
+  </div>
+
+  <form *ngIf="formVisible" [formGroup]="consultantForm" (ngSubmit)="submit()" class="form-slide enhanced-form">
+
+    <!-- Ligne 1 : Nom complet / Email -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Nom complet</label>
+        <input formControlName="nomComplet" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Email du consultant</label>
+        <select formControlName="email" required>
+          <option value="" disabled selected hidden>-- Sélectionner un email --</option>
+          <option *ngFor="let email of emails" [value]="email">{{ email }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Ligne 2 : Nom du projet / Organisme -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Nom du projet</label>
+        <select formControlName="nomProjet" required>
+          <option value="" disabled selected hidden>-- Sélectionner un projet --</option>
+          <option *ngFor="let projet of projets" [value]="projet">{{ projet }}</option>
+        </select>
+      </div>
+
+      <div class="input-wrapper">
+        <label>Organisme</label>
+        <input formControlName="organisme" placeholder="Nom de l'organisme" required />
+      </div>
+    </div>
+
+    <!-- Ligne 3 : Date d'affectation / Description -->
+    <div class="form-row">
+      <div class="input-wrapper">
+        <label>Date d'affectation</label>
+        <input type="date" formControlName="dateAffectation" required />
+      </div>
+
+      <div class="input-wrapper">
+        <label>Description (optionnelle)</label>
+        <input formControlName="description" placeholder="Description du projet" />
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <button type="submit" [disabled]="consultantForm.invalid" class="btn-blue">
+      <i class="fas" [ngClass]="editingId ? 'fa-save' : 'fa-paper-plane'"></i>
+      {{ editingId ? 'Modifier' : 'Ajouter' }}
+    </button>
+    <button type="button" class="btn-grey" (click)="cancelForm()">
+      <i class="fas fa-times"></i> Annuler
+    </button>
+
+  </form>
+
+
+  <h4><i class="fas fa-list"></i> Liste des consultants</h4>
+
+  <div class="search-bar">
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Recherche par nom"
+        [(ngModel)]="searchNom"
+        class="input-search"
+      />
+    </div>
+    <div class="input-icon">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Recherche par projet"
+        [(ngModel)]="searchProjet"
+        class="input-search"
+      />
+    </div>
+  </div>
+
+  <table *ngIf="consultants.length > 0">
+    <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Email</th>
+      <th>Projet assigné</th>
+      <th>Organisme </th>
+      <th>Date d'affectation</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let consultant of consultants | filter:searchNom:'nomComplet' | filter:searchProjet:'nomProjet'">
+      <tr>
+        <td>{{ consultant.nomComplet }}</td>
+        <td>{{ consultant.email }}</td>
+        <td>{{ consultant.nomProjet }}</td>
+        <td>{{ consultant.organisme }}</td>
+        <td>{{ consultant.dateAffectation | date: 'dd/MM/yyyy' }}</td>
+        <td class="actions-cell">
+          <button class="btn-green" (click)="modifier(consultant)" title="Modifier">
+            <i class="fas fa-edit"></i> Modifier
+          </button>
+          <button class="btn-red" (click)="supprimerConsultant(consultant.id)" title="Supprimer">
+            <i class="fas fa-trash-alt"></i> Supprimer
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="consultant.descriptionProjet" class="description-row">
+        <td colspan="4">
+          <button class="btn-description" (click)="toggleDescription(consultant)">
+            <i class="fas" [ngClass]="consultant.showDescription ? 'fa-eye-slash' : 'fa-eye'"></i>
+            {{ consultant.showDescription ? 'Masquer description' : 'Afficher description' }}
+          </button>
+          <div *ngIf="consultant.showDescription" class="description-content">
+            <p><strong>Description :</strong> {{ consultant.descriptionProjet }}</p>
+          </div>
+        </td>
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+  <p *ngIf="consultants.length === 0">Aucun consultant trouvé.</p>
+</div>

@@ -1,0 +1,64 @@
+<div class="affecter-consultant">
+  <h3><i class="fas fa-clipboard-list"></i> Mes projets affectés</h3>
+
+
+
+  <div class="search-bar">
+    <div class="input-icon" style="max-width: 400px;">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Recherche par nom de projet"
+        [(ngModel)]="searchProjet"
+        class="input-search"
+      />
+    </div>
+  </div>
+
+  <table *ngIf="projetsAffectes.length > 0">
+    <thead>
+    <tr>
+
+      <th>Projet assigné</th>
+      <th>Organisme</th>
+      <th>Date d'affectation</th>
+      <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let projet of projetsAffectes | filter:searchProjet:'nomProjet'">
+      <tr>
+
+        <td>{{ projet.nomProjet }}</td>
+        <td>{{ projet.organisme }}</td>
+        <td>{{ projet.dateAffectation | date: 'dd/MM/yyyy' }}</td>
+        <td>
+          <button *ngIf="projet.descriptionProjet"
+                  class="btn-red"
+                  (click)="toggleDescription(projet)">
+            <i class="fas"
+               [ngClass]="projet.showDescription ? 'fa-eye-slash' : 'fa-eye'">
+            </i>
+            {{ projet.showDescription ? 'Masquer' : 'Afficher' }}
+          </button>
+          <div *ngIf="projet.showDescription" class="description-content">
+            {{ projet.descriptionProjet }}
+          </div>
+        </td>
+
+      </tr>
+    </ng-container>
+    </tbody>
+  </table>
+
+
+
+  <p *ngIf="projetsAffectes.length === 0">Aucun projet affecté trouvé.</p>
+
+  <div class="actions">
+    <button class="btn-grey" (click)="retourMenu()">
+      <i class="fas fa-arrow-left"></i> Retour au menu
+    </button>
+  </div>
+
+</div>
