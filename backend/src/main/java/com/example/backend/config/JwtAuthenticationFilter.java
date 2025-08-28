@@ -1,6 +1,5 @@
 package com.example.backend.config;
 
-
 import com.example.backend.service.CustomUserDetailsService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -26,12 +25,17 @@ public class JwtAuthenticationFilter extends GenericFilter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        String header = req.getHeader("Authorization");
-        System.out.println("Authorization header: " + header);  // debug
+        String path = req.getRequestURI();
 
+        // ✅ Autoriser les fichiers PDF sans passer par le filtre
+        if (path.startsWith("/api/files") || "OPTIONS".equalsIgnoreCase(req.getMethod())) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        String header = req.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7).trim();
-            System.out.println("Token extrait: [" + token + "]");  // debug
 
             try {
                 String username = jwtUtils.extractUsername(token);
@@ -47,14 +51,11 @@ public class JwtAuthenticationFilter extends GenericFilter {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                // Renvoie une erreur 401 Unauthorized si le token est invalide
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token JWT invalide ou expiré");
-                return; // on stop la chaîne de filtre ici
+                return;
             }
         }
 
         chain.doFilter(request, response);
     }
 }
-
-

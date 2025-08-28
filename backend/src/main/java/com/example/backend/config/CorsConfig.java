@@ -1,4 +1,4 @@
-package com.example.backend.config;
+/*package com.example.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
@@ -11,8 +11,9 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // Toutes les routes
                 .allowedOrigins("http://localhost:4200") // Ton frontend Angular
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
+                .allowedHeaders("Authorization", "Content-Type", "X-Requested-With")
                 .allowCredentials(true); // Si tu utilises des cookies ou Authorization
     }
 }
 
+*/

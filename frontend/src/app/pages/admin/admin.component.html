@@ -1,4 +1,4 @@
-<!-- admin.component.html -->
+<!-- src/app/components/admin/admin.component.html -->
 <div class="admin-dashboard">
   <!-- Header -->
   <header class="admin-header">
@@ -7,7 +7,8 @@
       <span>Bienvenue dans votre espace Admin</span>
     </div>
     <div class="right-section">
-      <i class="bi bi-bell notification-icon"></i>
+      <app-notification-bell [destinataire]="'admin'"></app-notification-bell>
+
     </div>
   </header>
 
@@ -20,9 +21,13 @@
     <!-- Sidebar -->
     <nav class="sidebar" [class.open]="sidebarOpen">
       <ul>
-        <li><i class="bi bi-file-earmark-text"></i> Gérer les appels d'offre</li>
-        <li><i class="bi bi-folder-plus"></i> Création de projet</li>
-        <li><i class="bi bi-graph-up"></i> Suivi global des projets</li>
+        <li (click)="goToGestionAppels()">
+          <i class="bi bi-file-earmark-text"></i> Créer un appel d'offre
+        </li>
+        <li (click)="goToCreationProjetcts()">
+          <i class="bi bi-folder-plus"></i> Création de projet
+        </li>
+
       </ul>
     </nav>
 
@@ -32,12 +37,12 @@
         <div class="card">
           <i class="bi bi-journal-text"></i>
           <h4>Appels d’Offres en cours</h4>
-          <p>4</p>
+          <p>{{ compteurEnCours }}</p>
         </div>
         <div class="card">
           <i class="bi bi-check2-square"></i>
           <h4>Projets créés</h4>
-          <p>8</p>
+          <p>{{ compteurProjets }}</p>
         </div>
       </div>
     </main>
@@ -47,4 +52,7 @@
   <div class="logout-btn" (click)="logout()">
     <i class="bi bi-box-arrow-right"></i> Se déconnecter
   </div>
+
+
+
 </div>

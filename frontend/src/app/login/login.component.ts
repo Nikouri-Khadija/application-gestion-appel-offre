@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators,  ReactiveFormsModule} from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+
 
 // Interface pour envoyer les données au backend
 export interface AuthRequest {
@@ -18,23 +16,10 @@ export interface AuthResponse {
   role: 'ADMIN' | 'CHEF_DE_PROJET' | 'CONSULTANT';
 }
 
-@Injectable({
-  providedIn: 'root'
-})
-export class AuthService {
 
-  // URL de ton backend Spring Boot (à adapter si nécessaire)
-  private apiUrl = 'http://localhost:8080/api/auth/login';
-
-  constructor(private http: HttpClient) {}
-
-  // Méthode pour faire la requête de login (POST)
-  login(credentials: AuthRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(this.apiUrl, credentials);
-  }
-}
 
 import {CommonModule} from '@angular/common';
+import {AuthService} from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -62,6 +47,8 @@ export class LoginComponent {
 
     this.auth.login(this.loginForm.value).subscribe({
       next: (res: AuthResponse) => {
+
+
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
 

@@ -1,3 +1,4 @@
+<!-- src/app/components/chef/chef.component.html -->
 <div class="chef-dashboard">
   <!-- Header -->
   <header class="chef-header">
@@ -6,7 +7,7 @@
       <span>Bienvenue dans votre espace Chef de Projet</span>
     </div>
     <div class="right-section">
-      <i class="bi bi-bell chef-notification-icon"></i>
+      <app-notification-bell [destinataire]="'chef'"></app-notification-bell>
     </div>
   </header>
 
@@ -19,32 +20,82 @@
     <!-- Sidebar -->
     <nav class="chef-sidebar" [class.open]="sidebarOpen">
       <ul>
-        <li><i class="bi bi-hand-index-thumb"></i> Sélectionner un appel d'offre</li>
-        <li><i class="bi bi-people-fill"></i> Gestion des consultants</li>
-        <li><i class="bi bi-kanban-fill"></i> Gestion des tâches</li>
-        <li><i class="bi bi-bar-chart-line-fill"></i> Suivi global des projets</li>
+        <li (click)="goToSelectionAppels()">
+          <i class="bi bi-check-circle"></i> Sélectionner un appel d'offre
+        </li>
+        <li (click)="showMesProjets()">
+          <i class="bi bi-folder-fill"></i> Mes projets affectés
+        </li>
+        <li (click)="showConsultants()">
+          <i class="bi bi-people-fill"></i> Gestion des consultants
+        </li>
+        <li (click)="showTaches()">
+          <i class="bi bi-kanban-fill"></i> Gestion des tâches
+        </li>
+        <li (click)="suivi()" >
+          <i class="bi bi-bar-chart-line-fill"></i> Suivi global des projets
+        </li>
+
+        <!-- Bouton Déconnexion -->
+        <li class="logout-btn" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Se déconnecter
+        </li>
       </ul>
     </nav>
 
-    <!-- Dashboard Content -->
-    <main class="dashboard-content">
-      <div class="stats-card">
-        <div class="card">
-          <i class="bi bi-exclamation-circle-fill"></i>
-          <h4>Tâches en Retard</h4>
-          <p>3</p>
+    <!-- Contenu principal -->
+    <div class="dashboard-content">
+      <div>
+        <!-- Phrase explicative au-dessus de la liste -->
+        <div class="select-info">
+          <i class="bi bi-bar-chart-line"></i>
+          <span>Sélectionner un projet pour voir statistiques</span>
         </div>
-        <div class="card">
-          <i class="bi bi-play-fill"></i>
-          <h4>Projets Actifs</h4>
-          <p>5</p>
+
+        <!-- Liste déroulante -->
+        <div class="custom-select">
+          <select [(ngModel)]="selectedProjet" (change)="chargerStatistiques()">
+            <option value="">-- Choisir un projet --</option>
+            <option *ngFor="let projet of projetsAffectes" [value]="projet.nomProjet">
+              {{ projet.nomProjet }}
+            </option>
+          </select>
+          <i class="bi bi-caret-down-fill dropdown-icon"></i>
+        </div>
+
+        <!-- Affichage cartes si stats chargées -->
+        <div class="stats-card" *ngIf="statistiques">
+          <div class="card">
+            <i class="bi bi-list-task"></i>
+            <h4>À Faire</h4>
+            <p>{{ statistiques.nbAFaire }}</p>
+          </div>
+
+          <div class="card">
+            <i class="bi bi-hourglass-split"></i>
+            <h4>En Cours</h4>
+            <p>{{ statistiques.nbEnCours }}</p>
+          </div>
+
+          <div class="card">
+            <i class="bi bi-check-circle-fill"></i>
+            <h4>Terminées</h4>
+            <p>{{ statistiques.nbTermine }}</p>
+          </div>
+
+          <div class="card">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <h4>Bloquées</h4>
+            <p>{{ statistiques.nbBloque }}</p>
+          </div>
+
+          <div class="card">
+            <i class="bi bi-clock-fill"></i>
+            <h4>Retardées</h4>
+            <p>{{ statistiques.nbRetarde }}</p>
+          </div>
         </div>
       </div>
-    </main>
-  </div>
-
-  <!-- Logout -->
-  <div class="logout-btn" (click)="logout()">
-    <i class="bi bi-box-arrow-right"></i> Se déconnecter
+    </div>
   </div>
 </div>

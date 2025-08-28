@@ -30,19 +30,6 @@
         color: white;
       }
     }
-
-    .right-section {
-      .chef-notification-icon {
-        font-size: 1.8rem;
-        color: white;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        transform-origin: center;
-
-        &:hover {
-          animation: bellWiggle 0.8s ease-in-out;
-        }
-      }}
   }
 
   .menu-toggle {
@@ -63,6 +50,8 @@
     margin-top: 2rem;
 
     .chef-sidebar {
+      display: flex;           // ⚠ rendre la sidebar un conteneur flex
+      flex-direction: column;  // les éléments sont empilés verticalement
       background-color: #343a40;
       color: white;
       width: 0;
@@ -78,6 +67,9 @@
       ul {
         list-style: none;
         padding: 0;
+        flex: 1;               // ⚠ occuper tout l'espace vertical disponible
+        display: flex;
+        flex-direction: column;
 
         li {
           padding: 1rem;
@@ -87,6 +79,7 @@
           font-size: 1rem;
           border-radius: 6px;
           transition: background 0.3s ease;
+          cursor: pointer;
 
           i {
             color: #b00508;
@@ -100,8 +93,35 @@
             animation: pressEffect 0.2s ease-in-out;
           }
         }
+
+        // Bouton logout placé en bas
+        .logout-btn {
+          margin-top: auto;   // ⚡ pousse le bouton en bas
+          background-color: #b00508;
+          color: white !important;
+          border-radius: 6px;
+          text-align: center;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background 0.3s ease;
+          padding: 0.8rem;
+          width: calc(100% - 2rem);
+
+          i {
+            color: white !important;
+          }
+
+          &:hover {
+            background-color: #a00407;
+          }
+
+          &:active {
+            animation: pressEffect 0.2s ease-in-out;
+          }
+        }
       }
     }
+
 
     .dashboard-content {
       flex: 1;
@@ -109,10 +129,63 @@
       justify-content: center;
       align-items: center;
       padding: 2rem;
+      flex-direction: column;
+      gap: 2rem;
+
+      .select-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: #343a40;
+        margin-bottom: 0.5rem;
+
+        i {
+          color: #b00508;
+          font-size: 1.2rem;
+        }
+      }
+
+      .custom-select {
+        position: relative;
+        display: inline-block;
+        width: 260px;
+        margin-bottom: 1rem;
+
+        select {
+          width: 100%;
+          padding: 0.6rem 2.2rem 0.6rem 1rem;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+          font-size: 1rem;
+          cursor: pointer;
+          appearance: none;
+          background-color: white;
+          transition: border 0.3s ease, box-shadow 0.3s ease;
+
+          &:focus {
+            border-color: #b00508;
+            box-shadow: 0 0 5px rgba(176, 5, 8, 0.4);
+            outline: none;
+          }
+        }
+
+        .dropdown-icon {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          color: #b00508;
+          font-size: 1rem;
+        }
+      }
 
       .stats-card {
         display: flex;
         gap: 2rem;
+        flex-wrap: wrap;
+        justify-content: center;
 
         .card {
           background-color: white;
@@ -120,8 +193,9 @@
           padding: 1.5rem;
           border-radius: 8px;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-          width: 250px;
+          width: 220px;
           transition: transform 0.3s ease;
+          text-align: center;
 
           i {
             font-size: 2rem;
@@ -149,34 +223,6 @@
     }
   }
 
-  .logout-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #b00508;
-    color: white;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-
-    i {
-      font-size: 1.2rem;
-    }
-
-    &:hover {
-      background-color: #a00407;
-    }
-
-    &:active {
-      animation: pressEffect 0.2s ease-in-out;
-    }
-  }
-
   @keyframes pressEffect {
     0% {
       transform: scale(1);
@@ -187,14 +233,5 @@
     100% {
       transform: scale(1);
     }
-  }
-
-  @keyframes bellWiggle {
-    0% { transform: rotate(0deg); }
-    20% { transform: rotate(15deg); }
-    40% { transform: rotate(-10deg); }
-    60% { transform: rotate(8deg); }
-    80% { transform: rotate(-5deg); }
-    100% { transform: rotate(0deg); }
   }
 }

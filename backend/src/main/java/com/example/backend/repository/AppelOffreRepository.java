@@ -8,5 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AppelOffreRepository extends JpaRepository<AppelOffre, Long> {
-    List<AppelOffre> findByDestinataireAndStatut(User user, Statut statut);
+
+    List<AppelOffre> findByDestinatairesContainingAndStatut(User chef, Statut statut);
+
+    List<AppelOffre> findByStatut(Statut statut);  // utiliser l’enum Statut
+
+    long countByStatut(Statut statut);
 }
+

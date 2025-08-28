@@ -6,7 +6,8 @@
       <span>Bienvenue dans votre espace Consultant</span>
     </div>
     <div class="right-section">
-      <i class="bi bi-bell consultant-notification-icon"></i>
+      <app-notification-bell [destinataire]="userEmail"></app-notification-bell>
+
     </div>
   </header>
 
@@ -19,8 +20,10 @@
     <!-- Sidebar -->
     <nav class="consultant-sidebar" [class.open]="sidebarOpen">
       <ul>
-        <li><i class="bi bi-list-task"></i> Mes tâches assignées</li>
-        <li><i class="bi bi-briefcase-fill"></i> Mes projets affectés</li>
+        <li (click)="MesTaches()"><i class="bi bi-list-task"></i> Mes tâches assignées</li>
+        <li (click)="showProjectConsultant()">
+          <i class="bi bi-briefcase-fill"></i> Mes projets affectés
+        </li>
       </ul>
     </nav>
 
