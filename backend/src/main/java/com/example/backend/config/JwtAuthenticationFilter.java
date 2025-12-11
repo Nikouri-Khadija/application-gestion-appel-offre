@@ -4,10 +4,14 @@ import com.example.backend.service.CustomUserDetailsService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+
+
 
 import java.io.IOException;
 
@@ -17,6 +21,8 @@ public class JwtAuthenticationFilter extends GenericFilter {
 
     private final JwtUtils jwtUtils;
     private final CustomUserDetailsService userDetailsService;
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -50,10 +56,11 @@ public class JwtAuthenticationFilter extends GenericFilter {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Erreur lors de la validation du token JWT : {}", e.getMessage());
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token JWT invalide ou expiré");
                 return;
             }
+
         }
 
         chain.doFilter(request, response);
