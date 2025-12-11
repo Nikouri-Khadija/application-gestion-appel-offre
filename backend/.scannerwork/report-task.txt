@@ -1,0 +1,6 @@
+projectKey=ProjectTracking-backend
+serverUrl=http://localhost:9000
+serverVersion=25.10.0.114319
+dashboardUrl=http://localhost:9000/dashboard?id=ProjectTracking-backend
+ceTaskId=c9823c26-225b-4f36-a6f3-77881e4a007b
+ceTaskUrl=http://localhost:9000/api/ce/task?id=c9823c26-225b-4f36-a6f3-77881e4a007b

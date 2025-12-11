@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-public class JwtUtils {
+public class  JwtUtils {
 
     // Clé secrète longue, minimum 64 caractères pour HS512
     private final String jwtSecret = "ma-cle-secrete-très-longue-et-sécurisée-pour-jwt-hs512-1234567890abcdef";
