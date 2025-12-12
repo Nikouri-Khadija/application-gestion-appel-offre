@@ -5,6 +5,7 @@ import com.example.backend.entity.AppelOffre;
 import com.example.backend.entity.Projet;
 import com.example.backend.entity.Statut;
 import com.example.backend.entity.User;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.AppelOffreRepository;
 import com.example.backend.repository.ProjetRepository;
 import com.example.backend.repository.UserRepository;
@@ -15,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class ProjetService {
 
@@ -22,6 +26,7 @@ public class ProjetService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final AppelOffreRepository appelOffreRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ProjetService.class);
 
     public ProjetService(ProjetRepository projetRepository,
                          UserRepository userRepository,
@@ -36,11 +41,11 @@ public class ProjetService {
     @Transactional
     public Projet ajouterProjet(ProjetRequest request) {
         if (projetRepository.existsByCodeProjet(request.getCodeProjet())) {
-            throw new RuntimeException("Code projet déjà utilisé");
+            throw new IllegalArgumentException("Code projet déjà utilisé");
         }
 
         User chef = userRepository.findById(request.getChefId())
-                .orElseThrow(() -> new RuntimeException("Chef introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Chef introuvable"));
 
         Projet projet = new Projet();
         projet.setNomProjet(request.getNomProjet());
@@ -61,7 +66,7 @@ public class ProjetService {
         int nbProjets = appelsValides.size();
         long nbEnCours = appelOffreRepository.countByStatut(Statut.EN_ATTENTE);
 
-        System.out.println("Compteurs mis à jour - En cours : " + nbEnCours + " / Projets : " + nbProjets);
+        logger.info("Compteurs mis à jour - En cours : {} / Projets : {}", nbEnCours, nbProjets);
 
         return savedProjet;
     }
@@ -71,13 +76,14 @@ public class ProjetService {
     }
 
     public void supprimerProjet(Long id) {
-        projetRepository.deleteById(id);
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projet non trouvé avec l'id : " + id));
+        projetRepository.delete(projet);
     }
 
     public Map<String, Integer> getCompteurs() {
         long nbEnCoursLong = appelOffreRepository.countByStatut(Statut.EN_ATTENTE);
         long nbProjetsLong = projetRepository.count();
-
 
         Map<String, Integer> result = new HashMap<>();
         result.put("enCours", (int) nbEnCoursLong);
@@ -87,10 +93,10 @@ public class ProjetService {
 
     public Projet modifierProjet(Long id, ProjetRequest request) {
         Projet projet = projetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Projet non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Projet non trouvé"));
 
         User chef = userRepository.findById(request.getChefId())
-                .orElseThrow(() -> new RuntimeException("Chef non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Chef non trouvé"));
 
         projet.setNomProjet(request.getNomProjet());
         projet.setCodeProjet(request.getCodeProjet());
@@ -112,3 +118,4 @@ public class ProjetService {
         return projetRepository.findByChefProjetId(chefId);
     }
 }
+
