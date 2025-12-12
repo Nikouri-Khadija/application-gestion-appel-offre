@@ -32,17 +32,14 @@ public class AppelOffreController {
 
     private final AppelOffreService service;
     private final UserRepository userRepo;
-    private final NotificationService notificationService;
+
 
     // Création par Admin
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public AppelOffre createAppel(@ModelAttribute AppelOffreRequest request) throws IOException {
-        AppelOffre createdAppel = service.create(request);
 
-        // ✅ Envoyer une notification à tous les chefs
-
-        return createdAppel;
+        return service.create(request); // retourne directement sans variable temporaire inutile
     }
 
 
