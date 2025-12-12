@@ -13,8 +13,8 @@ import java.util.Date;
 public class  JwtUtils {
 
     // Clé secrète longue, minimum 64 caractères pour HS512
-    private final String jwtSecret = "ma-cle-secrete-très-longue-et-sécurisée-pour-jwt-hs512-1234567890abcdef";
-    private final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    private static final String jwtSecret = "ma-cle-secrete-très-longue-et-sécurisée-pour-jwt-hs512-1234567890abcdef";
+    private static final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
     private final long expirationMs = 86400000; // 24h
 
