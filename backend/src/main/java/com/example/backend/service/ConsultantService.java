@@ -117,7 +117,7 @@ public class ConsultantService {
         Consultant updated = consultantRepository.save(consultant);
 
         // Envoi notification si au moins un changement
-        if (changements.length() > 0) {
+        if (changements.isEmpty()) {
             notificationService.envoyer(changements.toString(), consultant.getUser().getEmail());
         }
 
@@ -193,7 +193,7 @@ public class ConsultantService {
             dto.setDescriptionProjet(consultant.getDescriptionProjet());
 
             return dto;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public List<ProjetResponse> getProjetsByConsultantEmail(String email) {
