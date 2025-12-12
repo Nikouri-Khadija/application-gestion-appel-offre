@@ -10,27 +10,27 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
-public class  JwtUtils {
+public class JwtUtils {
 
     // Clé secrète longue, minimum 64 caractères pour HS512
-    private static final String jwtSecret = "ma-cle-secrete-très-longue-et-sécurisée-pour-jwt-hs512-1234567890abcdef";
-    private static final SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    private static final String JWT_SECRET = "ma-cle-secrete-très-longue-et-sécurisée-pour-jwt-hs512-1234567890abcdef";
+    private static final SecretKey JWT_KEY = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_8));
 
-    private final long expirationMs = 86400000; // 24h
+    private static final long EXPIRATION_MS = 86400000; // 24h
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("roles", userDetails.getAuthorities())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .signWith(JWT_KEY, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(JWT_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -43,7 +43,7 @@ public class  JwtUtils {
 
     private boolean isTokenExpired(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(JWT_KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
