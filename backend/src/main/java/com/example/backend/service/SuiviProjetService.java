@@ -5,7 +5,6 @@ import com.example.backend.dto.TacheResponse;
 import com.example.backend.entity.Projet;
 import com.example.backend.entity.Tache;
 import com.example.backend.entity.StatutTache;
-import com.example.backend.repository.ConsultantRepository;
 import com.example.backend.repository.ProjetRepository;
 import com.example.backend.repository.TacheRepository;
 import org.springframework.stereotype.Service;
@@ -20,20 +19,17 @@ public class SuiviProjetService {
 
     private final ProjetRepository projetRepository;
     private final TacheRepository tacheRepository;
-    private final ConsultantRepository consultantRepository;
     private final TacheService tacheService;
 
     public SuiviProjetService(ProjetRepository projetRepository,
                               TacheRepository tacheRepository,
-                              ConsultantRepository consultantRepository,
                               TacheService tacheService) {
         this.projetRepository = projetRepository;
         this.tacheRepository = tacheRepository;
-        this.consultantRepository = consultantRepository;
         this.tacheService = tacheService;
     }
 
-    // ✅ Récupérer le suivi par ID (optionnel si besoin)
+    // ✅ Récupérer le suivi par ID
     public SuiviProjetResponse getSuiviProjet(Long projetId) {
         Projet projet = projetRepository.findById(projetId)
                 .orElseThrow(() -> new RuntimeException("Projet introuvable"));
@@ -81,7 +77,7 @@ public class SuiviProjetService {
         // Mapping des tâches en DTO
         List<TacheResponse> tacheDtos = taches.stream()
                 .map(tacheService::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
 
         // Retour DTO enrichi avec toutes les cartes
         return new SuiviProjetResponse(
@@ -98,12 +94,10 @@ public class SuiviProjetService {
                 tacheDtos
         );
     }
+
     public List<String> getAllProjets(Long chefId) {
         return projetRepository.findByChefProjetId(chefId).stream()
                 .map(Projet::getNomProjet)
                 .collect(Collectors.toList());
     }
-
-
-
 }
