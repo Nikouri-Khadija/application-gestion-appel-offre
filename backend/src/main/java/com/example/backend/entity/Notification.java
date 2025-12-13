@@ -22,4 +22,6 @@ public class Notification {
     private LocalDateTime dateEnvoi;
 
     private boolean lu = false;
+
+
 }

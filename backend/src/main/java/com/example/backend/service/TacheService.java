@@ -1,4 +1,5 @@
 package com.example.backend.service;
+
 import com.example.backend.dto.StatistiquesTacheResponse;
 import com.example.backend.dto.TacheRequest;
 import com.example.backend.dto.TacheResponse;
@@ -11,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class TacheService {
     public TacheResponse createTache(TacheRequest request) {
         Consultant consultant = consultantRepository.findByUserId(request.getConsultantId())
                 .stream().findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Consultant non trouvé pour cet utilisateur"));
+                .orElseThrow(() -> new ResourceNotFoundException("Consultant non trouvé"));
 
         Projet projet = projetRepository.findById(request.getProjetId())
                 .orElseThrow(() -> new ResourceNotFoundException("Projet non trouvé"));
@@ -45,56 +47,71 @@ public class TacheService {
         tache.setProjet(projet);
         tache.setPriorite(request.getPriorite());
         tache.setDescription(request.getDescription());
-
-        if (request.getDateAffectation() != null) {
-            tache.setDateAffectation(LocalDate.parse(request.getDateAffectation(), formatter));
-        }
-        if (request.getDateLimite() != null) {
-            tache.setDateLimite(LocalDate.parse(request.getDateLimite(), formatter));
-        }
+        tache.setDateAffectation(parseDate(request.getDateAffectation()));
+        tache.setDateLimite(parseDate(request.getDateLimite()));
 
         return mapToResponse(tacheRepository.save(tache));
+    }
+
+    private LocalDate parseDate(String dateStr) {
+        return dateStr != null ? LocalDate.parse(dateStr, formatter) : null;
     }
 
     public List<TacheResponse> getAllTaches() {
         return tacheRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
-                .toList(); // remplace collect(Collectors.toList())
+                .toList();
     }
 
     public TacheResponse updateStatut(Long id, StatutTache statut, String commentaire, User user) {
         Tache tache = tacheRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tâche non trouvée"));
 
-        switch (user.getRole()) {
-            case CONSULTANT -> handleConsultantUpdate(tache, statut, commentaire);
-            case CHEF_DE_PROJET -> handleChefDeProjetUpdate(tache, statut, commentaire);
-            default -> throw new AccessDeniedException("Rôle non autorisé pour modifier une tâche");
+        // Gestion des permissions selon le rôle
+        if (user.getRole() == Role.CONSULTANT) {
+            handleConsultantUpdate(tache, statut, commentaire);
+        } else if (user.getRole() == Role.CHEF_DE_PROJET) {
+            handleChefDeProjetUpdate(tache, statut, commentaire);
+        } else {
+            throw new AccessDeniedException("Rôle non autorisé");
         }
 
         return mapToResponse(tacheRepository.save(tache));
     }
 
-    private void handleConsultantUpdate(Tache tache, StatutTache statut, String commentaire) {
-        if (!(statut == StatutTache.EN_COURS || statut == StatutTache.BLOQUE || statut == StatutTache.EN_ATTENTE_VALIDATION)) {
+    private void handleConsultantUpdate(Tache tache, StatutTache newStatut, String commentaire) {
+        // Vérifier les permissions du consultant
+        if (newStatut != StatutTache.EN_COURS
+                && newStatut != StatutTache.BLOQUE
+                && newStatut != StatutTache.EN_ATTENTE_VALIDATION) {
             throw new AccessDeniedException("Un consultant ne peut pas changer ce statut");
         }
-        if (statut == StatutTache.BLOQUE && (commentaire == null || commentaire.isBlank())) {
+
+        // Vérifier commentaire pour BLOQUE
+        if (newStatut == StatutTache.BLOQUE && (commentaire == null || commentaire.trim().isEmpty())) {
             throw new IllegalArgumentException("Un commentaire est obligatoire pour bloquer une tâche");
         }
-        tache.setStatut(statut);
-        if (statut == StatutTache.BLOQUE) tache.setCommentaire(commentaire);
+
+        // Mettre à jour
+        tache.setStatut(newStatut);
+        if (newStatut == StatutTache.BLOQUE) {
+            tache.setCommentaire(commentaire);
+        }
     }
 
-    private void handleChefDeProjetUpdate(Tache tache, StatutTache statut, String commentaire) {
-        if (statut == StatutTache.TERMINE && tache.getStatut() != StatutTache.EN_ATTENTE_VALIDATION) {
+    private void handleChefDeProjetUpdate(Tache tache, StatutTache newStatut, String commentaire) {
+        // Vérifier transition TERMINE
+        if (newStatut == StatutTache.TERMINE && tache.getStatut() != StatutTache.EN_ATTENTE_VALIDATION) {
             throw new IllegalArgumentException("Une tâche ne peut être terminée que si elle est en attente de validation");
         }
-        tache.setStatut(statut);
-        if (statut == StatutTache.BLOQUE) tache.setCommentaire(commentaire);
-    }
 
+        // Mettre à jour
+        tache.setStatut(newStatut);
+        if (newStatut == StatutTache.BLOQUE) {
+            tache.setCommentaire(commentaire);
+        }
+    }
 
     public void deleteTache(Long id) {
         tacheRepository.deleteById(id);
@@ -110,37 +127,60 @@ public class TacheService {
         dto.setNomProjet(tache.getProjet().getNomProjet());
         dto.setPriorite(tache.getPriorite());
         dto.setStatut(tache.getStatut());
-        dto.setDateCreation(tache.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-        if (tache.getDateAffectation() != null)
-            dto.setDateAffectation(tache.getDateAffectation().format(formatter));
-        if (tache.getDateLimite() != null)
-            dto.setDateLimite(tache.getDateLimite().format(formatter));
+
+        // CORRECTION : LocalDateTime pour dateCreation
+        dto.setDateCreation(formatDateTime(tache.getDateCreation()));
+
+        dto.setDateAffectation(formatDate(tache.getDateAffectation()));
+        dto.setDateLimite(formatDate(tache.getDateLimite()));
         dto.setDescription(tache.getDescription());
         dto.setCommentaire(tache.getCommentaire());
         return dto;
     }
 
+    // CORRECTION : Paramètre LocalDateTime
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+        return dateTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
+    private String formatDate(LocalDate date) {
+        return date != null ? date.format(formatter) : null;
+    }
+
     public StatistiquesTacheResponse getStatistiquesParProjet(String nomProjet) {
         List<Tache> taches = tacheRepository.findByProjet_NomProjet(nomProjet);
 
-        LocalDate today = LocalDate.now();
-
-        long nbAFaire = taches.stream().filter(t -> t.getStatut() == StatutTache.A_FAIRE).count();
-        long nbEnCours = taches.stream().filter(t -> t.getStatut() == StatutTache.EN_COURS).count();
-        long nbTermine = taches.stream().filter(t -> t.getStatut() == StatutTache.TERMINE).count();
-        long nbBloque = taches.stream().filter(t -> t.getStatut() == StatutTache.BLOQUE).count();
-        long nbRetarde = taches.stream()
-                .filter(t -> t.getDateLimite() != null && t.getDateLimite().isBefore(today)
-                        && t.getStatut() != StatutTache.TERMINE)
-                .count();
+        long nbAFaire = countByStatus(taches, StatutTache.A_FAIRE);
+        long nbEnCours = countByStatus(taches, StatutTache.EN_COURS);
+        long nbTermine = countByStatus(taches, StatutTache.TERMINE);
+        long nbBloque = countByStatus(taches, StatutTache.BLOQUE);
+        long nbRetarde = countRetardedTasks(taches);
 
         return new StatistiquesTacheResponse(nbEnCours, nbAFaire, nbTermine, nbBloque, nbRetarde);
+    }
+
+    private long countByStatus(List<Tache> taches, StatutTache status) {
+        return taches.stream()
+                .filter(t -> t.getStatut() == status)
+                .count();
+    }
+
+    private long countRetardedTasks(List<Tache> taches) {
+        LocalDate today = LocalDate.now();
+        return taches.stream()
+                .filter(t -> t.getDateLimite() != null)
+                .filter(t -> t.getDateLimite().isBefore(today))
+                .filter(t -> t.getStatut() != StatutTache.TERMINE)
+                .count();
     }
 
     public List<TacheResponse> getTachesParEmailConsultant(String email) {
         return tacheRepository.findByConsultant_User_Email(email)
                 .stream()
                 .map(this::mapToResponse)
-                .toList(); // remplace collect(Collectors.toList())
+                .toList();
     }
 }
+
+

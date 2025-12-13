@@ -3,7 +3,10 @@ package com.example.backend.service;
 import com.example.backend.dto.ConsultantRequest;
 import com.example.backend.dto.ConsultantResponse;
 import com.example.backend.dto.ProjetResponse;
-import com.example.backend.entity.*;
+import com.example.backend.entity.Consultant;
+import com.example.backend.entity.Projet;
+import com.example.backend.entity.Role;
+import com.example.backend.entity.User;
 import com.example.backend.repository.ConsultantRepository;
 import com.example.backend.repository.ProjetRepository;
 import com.example.backend.repository.UserRepository;
@@ -12,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Service
 public class ConsultantService {
@@ -24,6 +27,10 @@ public class ConsultantService {
     private final ProjetRepository projetRepository;
     private final NotificationService notificationService;
 
+    // Méthodes pour externaliser les lambdas
+    private final Function<Consultant, ConsultantResponse> mapToConsultantResponse = this::mapToConsultantResponse;
+    private final Function<Consultant, ProjetResponse> mapToProjetResponse = this::mapToProjetResponse;
+
     public ConsultantService(ConsultantRepository consultantRepository,
                              UserRepository userRepository,
                              ProjetRepository projetRepository,
@@ -34,6 +41,7 @@ public class ConsultantService {
         this.notificationService = notificationService;
     }
 
+    // Créer un consultant avec notification
     public Consultant saveConsultant(ConsultantRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User non trouvé avec email : " + request.getEmail()));
@@ -47,7 +55,6 @@ public class ConsultantService {
         consultant.setProjet(projet);
         consultant.setDescriptionProjet(request.getDescriptionProjet());
         consultant.setOrganisme(request.getOrganisme());
-
         consultant.setDateAffectation(LocalDate.parse(request.getDateAffectation(), DATE_FORMATTER));
 
         Consultant saved = consultantRepository.save(consultant);
@@ -57,6 +64,7 @@ public class ConsultantService {
         return saved;
     }
 
+    // Mettre à jour un consultant
     public Consultant updateConsultant(Long consultantId, ConsultantRequest request) {
         Consultant consultant = consultantRepository.findById(consultantId)
                 .orElseThrow(() -> new RuntimeException("Consultant non trouvé avec l'id : " + consultantId));
@@ -101,51 +109,91 @@ public class ConsultantService {
 
         Consultant updated = consultantRepository.save(consultant);
 
-        if (changements.isEmpty()) {
+        // Envoi notification si au moins un changement
+        if (!changements.isEmpty()) {
             notificationService.envoyer(changements.toString(), consultant.getUser().getEmail());
         }
 
         return updated;
     }
 
-    // Dans les autres méthodes, remplacer toutes les occurrences de
-    // DateTimeFormatter.ofPattern("dd/MM/yyyy") par DATE_FORMATTER
-    public List<ConsultantResponse> getAllConsultantsDetailed() {
-        return consultantRepository.findAll().stream().map(consultant -> {
-            ConsultantResponse dto = new ConsultantResponse();
-            dto.setId(consultant.getId());
-            dto.setNomComplet(consultant.getNomComplet());
-            dto.setOrganisme(consultant.getOrganisme());
+    // Supprimer un consultant
+    public void deleteConsultant(Long consultantId) {
+        Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new RuntimeException("Consultant non trouvé avec l'id : " + consultantId));
+        consultantRepository.delete(consultant);
 
-            User user = consultant.getUser();
-            if (user != null) dto.setEmail(user.getEmail());
-
-            Projet projet = consultant.getProjet();
-            if (projet != null) dto.setNomProjet(projet.getNomProjet());
-
-            if (consultant.getDateAffectation() != null) {
-                dto.setDateAffectation(consultant.getDateAffectation().format(DATE_FORMATTER));
-            }
-
-            dto.setDescriptionProjet(consultant.getDescriptionProjet());
-
-            return dto;
-        }).toList();
+        notificationService.envoyer(
+                "Votre affectation au projet " + consultant.getProjet().getNomProjet() + " a été supprimée.",
+                consultant.getUser().getEmail()
+        );
     }
 
+    // Récupérer tous les emails des consultants
+    public List<String> getEmailsConsultants() {
+        return userRepository.findByRole(Role.CONSULTANT)
+                .stream()
+                .map(User::getEmail)
+                .toList();
+    }
+
+    // Récupérer tous les noms de projets
+    public List<String> getNomProjets() {
+        return projetRepository.findAll()
+                .stream()
+                .map(Projet::getNomProjet)
+                .toList();
+    }
+
+    // Récupérer tous les consultants détaillés
+    public List<ConsultantResponse> getAllConsultantsDetailed() {
+        return consultantRepository.findAll()
+                .stream()
+                .map(mapToConsultantResponse)
+                .toList();
+    }
+
+    // Récupérer tous les projets assignés à un consultant par email
     public List<ProjetResponse> getProjetsByConsultantEmail(String email) {
         return consultantRepository.findByUserEmail(email)
                 .stream()
-                .map(c -> {
-                    ProjetResponse dto = new ProjetResponse();
-                    dto.setNomProjet(c.getProjet().getNomProjet());
-                    dto.setCodeProjet(c.getProjet().getCodeProjet());
-                    dto.setDescriptionProjet(c.getDescriptionProjet());
-                    dto.setDateAffectation(c.getDateAffectation() != null
-                            ? c.getDateAffectation().format(DATE_FORMATTER)
-                            : null);
-                    dto.setOrganisme(c.getOrganisme());
-                    return dto;
-                }).toList();
+                .map(mapToProjetResponse)
+                .toList();
+    }
+
+    // Méthodes de mapping explicites
+    private ConsultantResponse mapToConsultantResponse(Consultant consultant) {
+        ConsultantResponse dto = new ConsultantResponse();
+        dto.setId(consultant.getId());
+        dto.setNomComplet(consultant.getNomComplet());
+        dto.setOrganisme(consultant.getOrganisme());
+
+        User user = consultant.getUser();
+        if (user != null) dto.setEmail(user.getEmail());
+
+        Projet projet = consultant.getProjet();
+        if (projet != null) dto.setNomProjet(projet.getNomProjet());
+
+        if (consultant.getDateAffectation() != null) {
+            dto.setDateAffectation(consultant.getDateAffectation().format(DATE_FORMATTER));
+        }
+
+        dto.setDescriptionProjet(consultant.getDescriptionProjet());
+
+        return dto;
+    }
+
+    private ProjetResponse mapToProjetResponse(Consultant consultant) {
+        ProjetResponse dto = new ProjetResponse();
+        if (consultant.getProjet() != null) {
+            dto.setNomProjet(consultant.getProjet().getNomProjet());
+            dto.setCodeProjet(consultant.getProjet().getCodeProjet());
+        }
+        dto.setDescriptionProjet(consultant.getDescriptionProjet());
+        dto.setDateAffectation(consultant.getDateAffectation() != null
+                ? consultant.getDateAffectation().format(DATE_FORMATTER)
+                : null);
+        dto.setOrganisme(consultant.getOrganisme());
+        return dto;
     }
 }

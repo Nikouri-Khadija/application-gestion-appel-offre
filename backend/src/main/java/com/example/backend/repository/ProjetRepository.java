@@ -1,10 +1,8 @@
 package com.example.backend.repository;
 
-import com.example.backend.entity.Consultant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.backend.entity.Projet;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
 
 import java.util.List;
 import java.util.Optional;

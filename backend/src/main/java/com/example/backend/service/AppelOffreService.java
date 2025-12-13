@@ -29,7 +29,7 @@ public class AppelOffreService {
     private final NotificationService notificationService;
 
     @Value("${app.uploads.path}")
-    private String uploadFolder;
+    public String uploadFolder;
 
     public AppelOffre create(AppelOffreRequest request) throws IOException {
 

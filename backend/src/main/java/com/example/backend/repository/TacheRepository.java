@@ -1,6 +1,5 @@
 package com.example.backend.repository;
 
-import com.example.backend.entity.StatutTache;
 import com.example.backend.entity.Tache;
 import org.springframework.data.jpa.repository.JpaRepository;
 
